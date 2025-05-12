@@ -1,7 +1,8 @@
 //+------------------------------------------------------------------+
 //|                                                     CustomEA.mq5 |
 //|                        Copyright 2025, MetaQuotes Software Corp. |
-//|                                              https://www.mql5.com |
+//|                                              https://www.mql5.com
+|Developed by [(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2025, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
@@ -574,23 +575,6 @@ int HasOpenPositionForSymbol()
   }
 //+------------------------------------------------------------------+
 
-/*
-Further considerations for robustness:
-1.  Error handling for API calls (CopyBuffer, trade operations, etc.) needs to be comprehensive.
-2.  The "TurnoverCandles" logic might need more precise definition (e.g., are candles strictly after pullback, or can the pullback candle itself count?).
-    Current implementation checks candles *including* the one that might have touched EMA.
-3.  PipValue calculation: The provided GetPipValuePerLot() is a heuristic. A more robust method using OrderCalcProfit is commented out but recommended.
-    The current one might not be accurate for all symbols or brokers.
-4.  Scale-in tracking: Relying on comments for scale-in tracking can be fragile.
-    A more robust system might involve storing original ticket IDs that have been scaled into a global collection (e.g., CArrayLong) or using order properties if available.
-    The current check for existing scale-in orders by comment is a basic approach.
-5.  SL/TP for scale-in: The requirement is "identical SL & TP". This is implemented.
-6.  Testing: Thorough backtesting and forward testing on a demo account are crucial.
-    Test various scenarios: different symbols, timeframes (though logic is M5/H1 based), parameters.
-7.  RSI Threshold for SELL: The spec mentioned "30 or 35" generally. I've added RSI_Threshold_Sell as an input, defaulting to 70 (typical for overbought). This should be confirmed.
-    If it's also 30/35 for sell (e.g. looking for oversold in a downtrend), the logic `current_rsi < RSI_Threshold_Sell` would need adjustment.
-    The initial spec "RSI_Threshold (int) – level at or below which an entry signal is generated (30 or 35)" implies it's for buys (oversold). For sells, it would typically be an overbought level (e.g., >= 70).
-    I've assumed standard RSI usage: Buy when <= RSI_Threshold_Buy, Sell when >= RSI_Threshold_Sell.
-8.  SwingLookbackBars: This defines how far back to look for swing points for SL. Needs tuning.
-9.  Partial fills, requotes, and other trading realities should be considered for production EAs. CTrade class handles some of this.
+/* 
+developed by [(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)
 */
