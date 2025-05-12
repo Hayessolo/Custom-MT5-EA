@@ -1,8 +1,8 @@
 //+------------------------------------------------------------------+
 //|                                                     CustomEA.mq5 |
 //|                        Copyright 2025, MetaQuotes Software Corp. |
-//|                                              https://www.mql5.com
-|Developed by [(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)
+//|                                              https://www.mql5.com|
+//|Developed by [(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)|
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2025, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
