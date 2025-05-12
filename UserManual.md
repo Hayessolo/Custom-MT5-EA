@@ -1,4 +1,5 @@
 # CustomEA Expert Advisor - User Manual
+Developed by [(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -223,4 +224,4 @@ A: You can effectively disable it by setting ScaleIn_Percent to a large value li
 
 *Last Updated: May 12, 2025*
 
-*For support or questions, please contact your EA provider.*
+*For support or questions, please contact[(Hayessolo).*](https://www.linkedin.com/in/hayes-frank-b48700174/)
