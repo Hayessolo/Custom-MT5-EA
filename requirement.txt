@@ -1,0 +1,243 @@
+i require enhancements to incorporate custom risk‑management and entry‑logic features defined by manual trader inputs and specific market conditions. This document captures all details and context to guide the developer in delivering a compliant EA source (.mq5).
+
+1. Context & Background
+The Client trades forex using MetaTrader 5 and relies on EAs for automated order management.
+Their current EA strategy is available only as a compiled .ex5 file; source code is unavailable.
+
+Two core enhancements are requested: dollar‑based risk sizing and a “scale‑in” mechanism at 50% of stop‑loss.
+
+Entry logic must respect trend filters and RSI/EMA pullback signals across multiple timeframes.
+
+2. Scope of Work
+
+EA Inputs & Parameters
+
+Manual selection of TradeMode: BUY or SELL only.
+
+RiskPerTrade (double) – dollar amount the trader is willing to risk on the initial position.
+
+ScaleMultiplier (double) – lot‑size multiplier for the second (scale‑in) trade (e.g., 1.2, 1.5).
+
+SL_Buffer_Pips (int) – additional pips above/below the swing low/high for the stop‑loss buffer (e.g., 15, 30).
+
+TP_Ratio (double) – risk:reward ratio for take‑profit (default 1.0 for 1:1, adjustable).
+
+ScaleIn_Percent (double) – percentage of adverse movement toward SL to trigger scale‑in (50%).
+
+EMA200_Period (int) – period for the 200‑EMA trend filter on H1 (default 200).
+
+RSI_Period (int) – period for the RSI on the 5‑minute chart (default 14).
+
+RSI_Threshold (int) – level at or below which an entry signal is generated (30 or 35).
+
+Entry_EMA20_Period (int) – period for the 20‑EMA on the 5‑minute chart (default 20).
+
+TurnoverCandles (int) – number of consecutive candles after touching EMA20 to confirm turnover (2).
+
+MagicNumber (int) – unique identifier to tag and track EA‑generated orders.
+
+TradingHours_Start / TradingHours_End (time) – user‑defined active trading window.
+
+Functional Requirements
+
+
+
+Entry Logic (5‑minute chart):
+
+Monitor RSI; when RSI ≤ RSI_Threshold, proceed.
+
+Detect price pullback to the 20‑EMA and confirm TurnoverCandles consecutive closes in trade direction (bullish for BUY, bearish for SELL).
+
+On confirmation, calculate LotSize:
+
+SL_Pips = abs(EntryPrice – StopLossPrice)/_Point;
+PipValue = SymbolInfoDouble(Symbol(), SYMBOL_TRADE_TICK_VALUE);
+LotSize = RiskPerTrade / (SL_Pips * PipValue);
+
+Place market order with LotSize, SL at swing low/high ± SL_Buffer_Pips, TP at SL ± (SL_Buffer_Pips * TP_Ratio).
+
+Scale‑In Logic:
+
+Monitor each open trade tagged by MagicNumber.
+
+When adverse price movement ≥ ScaleIn_Percent of SL distance, open a second position at LotSize2 = LotSize * ScaleMultiplier, with identical SL & TP.
+
+Ensure only one scale‑in per original position.
+
+Testing & Validation
+
+Back‑test on MT5 Strategy Tester using historical tick data across multiple symbol types (4‑digit and 5‑digit pairs).
+
+Validate correct detection of entry signals, SL & TP placement, and scale‑in behavior.
+
+Perform forward testing in a demo account to ensure real‑time reliability.
+
+Deliverables 
+
+ 1.Develop .mq5 source incorporating all inputs and functional rules.
+
+2.Unit testing of lot‑size and scale‑in calculations; back‑testing of entry logic.
+
+ 3.Package demo .ex5 + .mq5 files; provide installation instructions and parameter guide.
+
+ 4.Client review, feedback integration, and final delivery.
+
+3. Assumptions & Constraints
+
+Source code for original strategy is not available; wrapper or full rewrite are acceptable approaches.
+
+Decompilation of .ex5 is not permitted; all logic must be manually implemented.
+
+Client will supply trading hours and exact RSI threshold (30 vs 35) prior to final coding.
+
+Partial-close or breakeven modifications are out of scope per client’s request.
+
+# Custom MetaTrader 5 Expert Advisor (EA) Requirements Specification
+
+## 1. Project Overview
+### 1.1 Background
+- Client is a professional trader using a manual trading strategy on Gold (XAUUSD)
+- Existing trading approach relies on EMA and RSI indicators
+- Requires a custom Expert Advisor to semi-automate trade entry and risk management
+
+### 1.2 Key Objectives
+- Implement a flexible, parameter-driven trading system
+- Provide precise risk management capabilities
+- Allow maximum trader discretion and manual intervention
+
+## 2. System Architecture
+### 2.1 Development Constraints
+- Platform: MetaTrader 5
+- Programming Language: MQL5
+- Deployment: Standalone Expert Advisor
+
+## 3. Functional Requirements
+
+### 3.1 Trade Direction Control
+- **Requirement**: Manual selection of trade direction
+- **Inputs**:
+  - Ability to choose BUY only or SELL only modes
+  - Trader can switch modes at any time
+- **Constraints**:
+  - No automatic trade direction generation
+  - Direction must be explicitly set by trader
+
+### 3.2 Entry Signal Conditions
+#### 3.2.1 RSI Trigger
+- **Indicator**: Relative Strength Index (RSI)
+- **Trigger Conditions**:
+  - Threshold: 35 or 30 (trader's discretion)
+  - Must be configurable input parameter
+- **Default Configuration**:
+  - RSI Period: 14
+  - Timeframe: 5-minute chart
+
+#### 3.2.2 Entry Confirmation
+- **EMA Pull-back Confirmation**:
+  - Uses 20-period EMA on 5-minute chart
+  - Entry requires price pull-back to EMA
+- **Candle Confirmation**:
+  - Requires 2 consecutive candles closing in trade direction
+  - Candle direction defined as:
+    * BUY: Bullish candles (close > open)
+    * SELL: Bearish candles (close < open)
+
+### 3.3 Risk Management
+
+#### 3.3.1 Initial Position Sizing
+- **Risk Calculation**:
+  ```
+  LotSize = RiskPerTrade / (StopLoss_Pips × PipValue)
+  ```
+- **Parameters**:
+  - `RiskPerTrade`: Manually input dollar amount
+  - Dynamically calculates lot size based on risk tolerance
+
+#### 3.3.2 Stop-Loss Configuration
+- **Placement Method**:
+  - Base stop-loss on recent swing low/high
+  - Additional manual buffer: 15-30 pips
+- **Calculation**:
+  - SL = SwingPoint ± BufferPips
+  - BufferPips configurable by trader (default: 15)
+
+#### 3.3.3 Take-Profit Configuration
+- **Minimum Requirement**: 1:1 risk-reward ratio
+- **Flexibility**:
+  - Manually adjustable
+  - No hard-coded TP restrictions
+- **Calculation Method**:
+  - TP = SL + (SL_Distance × Ratio)
+  - Ratio configurable by trader
+
+### 3.4 Scale-In Strategy
+- **Trigger Condition**:
+  - When trade moves against position by 50% of stop-loss
+  - Example: -25 pips on a 50-pip stop loss
+- **Second Position Characteristics**:
+  - Lot Size: Slightly larger than initial position
+  - Multiplier configurable (recommended: 1.2x - 1.5x)
+- **Constraints**:
+  - Scale-in occurs only ONCE per original trade
+  - Maintains original stop-loss and take-profit parameters
+
+## 4. Input Parameters
+
+### 4.1 Risk Management Inputs
+- `RiskPerTrade` (double): Dollar risk amount
+- `ScaleInMultiplier` (double): Lot size multiplier for second position
+- `SL_BufferPips` (int): Additional pips added to stop-loss
+
+### 4.2 Technical Indicator Inputs
+- `RSI_Threshold` (int): Entry trigger level (30-35)
+- `RSI_Period` (int): RSI calculation period
+- `EMA_Period` (int): Entry confirmation EMA period
+- `TurnoverCandles` (int): Consecutive candles for confirmation
+
+### 4.3 Trade Management Inputs
+- `TradeMode` (enum): BUY/SELL/BOTH selection
+- `TP_Ratio` (double): Take-profit multiplier
+
+## 5. Non-Functional Requirements
+
+### 5.1 Performance
+- Minimal computational overhead
+- Real-time trade signal processing
+- Low-latency order execution
+
+### 5.2 Flexibility
+- All critical parameters must be user-configurable
+- No hard-coded trading logic
+- Supports manual trader intervention
+
+### 5.3 Reliability
+- Robust error handling
+- Comprehensive logging
+- Safe position management
+
+## 6. Implementation Guidelines
+
+### 6.1 Development Approach
+- Create from scratch (no source code available)
+- Use client's strategy as precise specification
+- Prioritize trader flexibility
+
+### 6.2 Testing Recommendations
+
+- Validate across multiple market conditions
+- Simulate scale-in scenarios
+
+## 7. Delivery Expectations
+
+- documentation
+- Source code in MQL5
+- Ready for trader's custom configuration
+
+## 8. Future Considerations
+- Potential for adding more advanced risk management
+- Possible trend filter improvements
+- Performance optimization
+
+---
+
+**Note to Developer**: This specification represents the client's core trading strategy. Maintain maximum flexibility while ensuring robust, predictable behavior. When in doubt, prioritize trader control and transparency.
