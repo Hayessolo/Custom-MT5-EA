@@ -200,7 +200,7 @@ bool CheckM5EntryConditions(ENUM_TRADE_MODE mode, double &entry_price, double &s
    if(mode == MODE_SELL && current_rsi < RSI_Threshold_Sell) return false;
    
    // 2. EMA Pullback and Turnover Candles
-   double ema_m5_buffer[TurnoverCandles + 1]; // Need EMA for current and previous candles
+   double ema_m5_buffer[]; // MODIFIED: Declare as dynamic array. Need EMA for current and previous candles
    MqlRates m5_rates[];
    int rates_copied = CopyRates(Symbol(), PERIOD_M5, 0, TurnoverCandles + 5, m5_rates); // Get a few more for context
    if(rates_copied <= TurnoverCandles)
@@ -209,6 +209,13 @@ bool CheckM5EntryConditions(ENUM_TRADE_MODE mode, double &entry_price, double &s
       return false;
      }
      
+   // ADDED: Resize ema_m5_buffer before use and check for errors
+   if(ArrayResize(ema_m5_buffer, TurnoverCandles + 1) != (TurnoverCandles + 1))
+   {
+       Print("Error resizing M5 EMA buffer. Requested: ", TurnoverCandles + 1, ", Got: ", ArraySize(ema_m5_buffer), ", Error: ", GetLastError());
+       return false;
+   }
+
    if(CopyBuffer(m5_ema_handle, 0, 0, TurnoverCandles + 1, ema_m5_buffer) <=0)
      {
       Print("Error copying M5 EMA buffer: ", GetLastError());
