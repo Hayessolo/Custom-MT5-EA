@@ -149,10 +149,10 @@ bool IsInTradingHours()
    MqlDateTime current_time_struct;
    TimeCurrent(current_time_struct);
 
-   int start_hour = StringToInteger(StringSubstr(TradingHours_Start, 0, 2));
-   int start_min = StringToInteger(StringSubstr(TradingHours_Start, 3, 2));
-   int end_hour = StringToInteger(StringSubstr(TradingHours_End, 0, 2));
-   int end_min = StringToInteger(StringSubstr(TradingHours_End, 3, 2));
+   int start_hour = (int)StringToInteger(StringSubstr(TradingHours_Start, 0, 2));
+   int start_min = (int)StringToInteger(StringSubstr(TradingHours_Start, 3, 2));
+   int end_hour = (int)StringToInteger(StringSubstr(TradingHours_End, 0, 2));
+   int end_min = (int)StringToInteger(StringSubstr(TradingHours_End, 3, 2));
 
    int current_minutes_total = current_time_struct.hour * 60 + current_time_struct.min;
    int start_minutes_total = start_hour * 60 + start_min;
